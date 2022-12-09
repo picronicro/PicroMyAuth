@@ -1,0 +1,20 @@
+name: MyAuth
+version: '${project.version}'
+main: me.picro.myauth.Main
+api-version: 1.19
+authors: [ picroPancer ]
+commands:
+  # admin commands
+  smpadd:
+    description: add player to the whitelist and generate UUID and password
+    permission: myauth.admin
+
+  # usual commands
+  login:
+    description: Логин на сервер
+    aliases: l
+  changepwd:
+    description: Изменить пароль
+permissions:
+  myauth.admin:
+    default: op

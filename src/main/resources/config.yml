@@ -1,0 +1,9 @@
+# Database
+host: ur_host
+port: 3306
+database: ur_db
+username: ur_username
+password: ur_password
+
+# Login message
+login_msg: welcome
