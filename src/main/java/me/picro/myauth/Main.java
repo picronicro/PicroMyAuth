@@ -1,6 +1,7 @@
 package me.picro.myauth;
 
 import me.picro.myauth.commands.AddPlayerCommand;
+import me.picro.myauth.commands.DatabaseCommand;
 import me.picro.myauth.enums.PlayerData;
 import me.picro.myauth.managers.PlayerAuthManager;
 import org.bukkit.Bukkit;
@@ -76,6 +77,7 @@ public final class Main extends JavaPlugin implements Listener {
 
         // commands
         getCommand("smpadd").setExecutor(new AddPlayerCommand(database));
+        getCommand("db").setExecutor(new DatabaseCommand(this, database));
     }
 
     @Override
@@ -90,23 +92,24 @@ public final class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        if (!canPlayerJoin) {
+        if (!canPlayerJoin) { // if an error occurred
             e.getPlayer().kickPlayer(
-                    ChatColor.RED + "Ошибка: " + ChatColor.GRAY + kickMessage +
+                    ChatColor.DARK_GRAY + e.getPlayer().getName() +
+                    ChatColor.RED + "\nОшибка: " + ChatColor.GRAY + kickMessage +
                     ChatColor.AQUA + "\n\nОбратиться за помощью можно в тг группе GCIssues"
             );
-        } else {
+        } else { // if everything about sql are ok
             Player p = e.getPlayer();
             // check whitelist and prompt password
             PlayerData data = getPlayerFromDB(p.getName());
-            if (data == null) {
+
+            if (data == null) { // data is null when player isn't whitelisted
                 p.kickPlayer(
-                        ChatColor.RED + "Ошибка: " + ChatColor.GRAY + "Вас нет в белом списке!" +
+                        ChatColor.DARK_GRAY + e.getPlayer().getName() +
+                        ChatColor.RED + "\nОшибка: " + ChatColor.GRAY + "Вас нет в белом списке!" +
                         ChatColor.AQUA + "\n\nПодайте заявку на вступление в " + ChatColor.RED + "Geek" + ChatColor.BLUE + ChatColor.BOLD + "Craft" + ChatColor.RESET + " SMP"
                 );
-            } else {
-                p.sendMessage("id: " + data.getId() + "\nnick: " + data.getNickname() + "\npassword: " + data.getPassword()); // debug
-
+            } else { // if player whitelisted
                 authManager.authenticating(p, data);
                 p.sendMessage(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(getConfig().getString("login_msg"))));
                 p.sendMessage(ChatColor.AQUA + "[i] Перед тем, как начать игру, войдите в сессию:" + ChatColor.RED + "\n/login ваш_пароль");
@@ -114,6 +117,16 @@ public final class Main extends JavaPlugin implements Listener {
                 p.sendTitle(ChatColor.RED + "Войдите в сессию", "Используя /login ваш_пароль", 0, 100, 20);
 
                 // переместить логику логина, arraylist и ивенты в отдельный класс (commands)
+            }
+
+            if (data != null && data.getId().equals("SQLException")) {
+                String timeStamp = data.getNickname();
+                p.kickPlayer(
+                        ChatColor.DARK_GRAY + e.getPlayer().getName() +
+                                ChatColor.RED + "\nОшибка: " + ChatColor.GRAY + "An SQLException occurred, authentication is impossible. Admins, check logs." +
+                                "\nTimestamp: " + timeStamp +
+                                ChatColor.AQUA + "\n\nОбратиться за помощью можно в тг группе GCIssues"
+                );
             }
         }
     }
@@ -135,6 +148,17 @@ public final class Main extends JavaPlugin implements Listener {
             return data;
         } catch (SQLException e) {
             e.printStackTrace();
+
+            if (!e.getMessage().equals("Illegal operation on empty result set.")) {
+                String timeStamp = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(Calendar.getInstance().getTime());
+                PlayerData data = new PlayerData(
+                        "SQLException",
+                        timeStamp,
+                        "error"
+                );
+
+                return data;
+            }
         }
 
         return null;

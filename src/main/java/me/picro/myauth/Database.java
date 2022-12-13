@@ -25,7 +25,7 @@ public class Database {
 
     public void connect() throws SQLException {
         connection = DriverManager.getConnection(
-                "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE + "?useSSL=false",
+                "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE + "?useSSL=false&autoReconnect=true",
                 USERNAME,
                 PASSWORD
         );

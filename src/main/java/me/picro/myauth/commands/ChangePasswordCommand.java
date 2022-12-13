@@ -47,7 +47,7 @@ public class ChangePasswordCommand implements CommandExecutor {
                             }
 
                         } else {
-                            p.sendMessage(ChatColor.RED + "[i] Ваш пароль больше 36 или меньше 6 символов");
+                            p.sendMessage(ChatColor.RED + "[i] Ваш пароль больше 6 и меньше 36 символов");
                         }
                     } else {
                         p.sendMessage(ChatColor.RED + "Где аргументы, " + p.getName() + "?" + " Usage: /changepwd <password>");

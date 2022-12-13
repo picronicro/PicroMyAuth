@@ -5,14 +5,17 @@ import me.picro.myauth.Main;
 import me.picro.myauth.commands.ChangePasswordCommand;
 import me.picro.myauth.commands.LoginCommand;
 import me.picro.myauth.enums.PlayerData;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerCommandSendEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +40,14 @@ public class PlayerAuthManager implements Listener {
         this.database = database;
 
         initCommands();
+
+        /*new BukkitRunnable() {
+            @Override
+            public void run() {
+                System.out.println(notAuthPlayer);
+                System.out.println(playerData);
+            }
+        }.runTaskTimer(main, 0L, 20L);*/ // debug
     }
 
     // private methods
@@ -83,6 +94,7 @@ public class PlayerAuthManager implements Listener {
     }
 
     // events
+    // movement
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
         if (notAuthPlayer.contains(e.getPlayer().getName())) {
@@ -90,8 +102,9 @@ public class PlayerAuthManager implements Listener {
         }
     }
 
+    // got damage
     @EventHandler
-    public void onPlayerDamage(EntityDamageEvent e) {
+    public void onPlayerGotDamage(EntityDamageEvent e) {
         if (e.getEntity() instanceof Player) {
             if (notAuthPlayer.contains(((Player) e.getEntity()).getPlayer().getName())) {
                 e.setCancelled(true);
@@ -99,10 +112,60 @@ public class PlayerAuthManager implements Listener {
         }
     }
 
+    // attack
+    @EventHandler
+    public void onPlayerAttack(EntityDamageByEntityEvent e) {
+        if (e.getDamager() instanceof Player) {
+            if (notAuthPlayer.contains(((Player) e.getDamager()).getPlayer().getName())) {
+                e.setCancelled(true);
+            }
+        }
+    }
+
+    // block
     @EventHandler
     public void onPlayerBlockBreak(BlockBreakEvent e) {
         if (notAuthPlayer.contains(e.getPlayer().getName())) {
             e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerBlockPlace(BlockPlaceEvent e) {
+        if (notAuthPlayer.contains(e.getPlayer().getName())) {
+            e.setCancelled(true);
+        }
+    }
+
+    // items
+    @EventHandler
+    public void onItemDrop(PlayerDropItemEvent e) {
+        if (notAuthPlayer.contains(e.getPlayer().getName())) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onItemTake(PlayerPickupItemEvent e) {
+        if (notAuthPlayer.contains(e.getPlayer().getName())) {
+            e.setCancelled(true);
+        }
+    }
+
+    // chat
+    @EventHandler
+    public void onCommandExecution(PlayerCommandPreprocessEvent e) {
+        if (notAuthPlayer.contains(e.getPlayer().getName()) && !(e.getMessage().contains("/login") || e.getMessage().contains("/l"))) {
+            e.setCancelled(true);
+            e.getPlayer().sendMessage(ChatColor.RED + "[i] Сначала войдите в сессию!");
+        }
+    }
+
+    @EventHandler
+    public void onChatMessage(AsyncPlayerChatEvent e) {
+        if (notAuthPlayer.contains(e.getPlayer().getName())) {
+            e.setCancelled(true);
+            e.getPlayer().sendMessage(ChatColor.RED + "[i] Сначала войдите в сессию!");
         }
     }
 

@@ -8,6 +8,9 @@ commands:
   smpadd:
     description: add player to the whitelist and generate UUID and password
     permission: myauth.admin
+  db:
+    description: database manipulation
+    permission: myauth.admin
 
   # usual commands
   login:
