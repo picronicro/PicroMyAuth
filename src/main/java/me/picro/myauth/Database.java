@@ -1,7 +1,10 @@
 package me.picro.myauth;
 
+import org.bukkit.Bukkit;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Database {
@@ -29,10 +32,23 @@ public class Database {
                 USERNAME,
                 PASSWORD
         );
+
+        try {
+            PreparedStatement ps = connection.prepareStatement("SET @@wait_timeout=28800;");
+
+            ps.executeUpdate();
+            Bukkit.getLogger().info("Set wait_timeout 28800");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean isConnected() {
         return connection != null;
+    }
+
+    public boolean isClosed() throws SQLException {
+        return connection.isClosed();
     }
 
     public Connection getConnection() {

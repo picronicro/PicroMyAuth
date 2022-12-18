@@ -125,6 +125,7 @@ public final class Main extends JavaPlugin implements Listener {
                         ChatColor.DARK_GRAY + e.getPlayer().getName() +
                                 ChatColor.RED + "\nОшибка: " + ChatColor.GRAY + "An SQLException occurred, authentication is impossible. Admins, check logs." +
                                 "\nTimestamp: " + timeStamp +
+                                ChatColor.YELLOW + "\nПопробуйте перезайти на сервер через минуту" +
                                 ChatColor.AQUA + "\n\nОбратиться за помощью можно в тг группе GCIssues"
                 );
             }
